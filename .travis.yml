@@ -1,15 +1,18 @@
 language: go
+
 go:
 - 1.11.x
 - 1.12.x
 
+env:
+- GO111MODULE=on
+
 install:
-- go get github.com/nats-io/go-nats
-- go get github.com/nats-io/gnatsd
 - go get github.com/mattn/goveralls
 - go get github.com/wadey/gocovmerge
 - go get github.com/alecthomas/gometalinter
 - gometalinter --install
+
 before_script:
 - EXCLUDE_VENDOR=$(go list ./... | grep -v "/vendor/")
 - go fmt ./...
@@ -17,9 +20,11 @@ before_script:
 - go install
 - go vet $EXCLUDE_VENDOR
 - travis_wait 20 gometalinter ./... --vendor --disable=gocyclo --fast --deadline 20m
+
 script:
 - go test -i -race $EXCLUDE_VENDOR -p 1
 - go test -v -race $EXCLUDE_VENDOR -p 1
+
 after_success:
 - if [[ "$TRAVIS_GO_VERSION" == 1.12.* ]]; then ./scripts/cov.sh TRAVIS; fi
 
