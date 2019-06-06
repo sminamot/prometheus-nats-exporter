@@ -208,8 +208,8 @@ func TestRegister(t *testing.T) {
 	nc := NewCollector("varz", servers)
 
 	// test without a server (no error).
-	if err := prometheus.Register(nc); err == nil {
-		t.Fatalf("Did not get expected error.")
+	if err := prometheus.Register(nc); err != nil {
+		t.Fatalf("Unexpected error: %v", err)
 	}
 	prometheus.Unregister(nc)
 
@@ -226,8 +226,8 @@ func TestRegister(t *testing.T) {
 
 	// test collect with an invalid endpoint
 	nc = NewCollector("GARBAGE", servers)
-	if err := prometheus.Register(nc); err == nil {
-		t.Fatalf("Did not get expected error.")
+	if err := prometheus.Register(nc); err != nil {
+		t.Fatalf("Unexpected error: %v", err)
 		defer prometheus.Unregister(nc)
 	}
 }
