@@ -123,6 +123,7 @@ func main() {
 	flag.StringVar(&opts.HTTPPassword, "http_pass", "", "Set the password for HTTP scrapes. NATS bcrypt supported.")
 	flag.StringVar(&opts.Prefix, "prefix", "", "Replace the default prefix for all the metrics.")
 	flag.BoolVar(&opts.UseInternalServerID, "use_internal_server_id", false, "Enables using ServerID from /varz")
+	flag.StringVar(&opts.CustomLabels, "custom_labels", "", "Extra labels to add to all metrics, format k1=v1,k2=v2")
 	flag.Parse()
 
 	opts.RetryInterval = time.Duration(retryInterval) * time.Second
