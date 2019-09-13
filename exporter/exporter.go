@@ -55,7 +55,7 @@ type NATSExporterOptions struct {
 	HTTPPassword         string
 	Prefix               string
 	UseInternalServerID  bool
-	CustomLabels         string
+	GlobalConstLabels    prometheus.Labels
 }
 
 //NATSExporter collects NATS metrics
@@ -115,6 +115,7 @@ func (ne *NATSExporter) createCollector(system, endpoint string) {
 	ne.registerCollector(system, endpoint,
 		collector.NewCollector(system, endpoint,
 			ne.opts.Prefix,
+			ne.opts.GlobalConstLabels,
 			ne.servers))
 }
 

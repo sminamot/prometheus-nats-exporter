@@ -38,38 +38,38 @@ type connzCollector struct {
 	pendingBytes   *prometheus.Desc
 }
 
-func newConnzCollector(system, endpoint string, servers []*CollectedServer) prometheus.Collector {
+func newConnzCollector(system, endpoint string, constLabels prometheus.Labels, servers []*CollectedServer) prometheus.Collector {
 	nc := &connzCollector{
 		httpClient: http.DefaultClient,
 		numConnections: prometheus.NewDesc(
 			prometheus.BuildFQName(system, endpoint, "num_connections"),
 			"num_connections",
 			[]string{"server_id"},
-			nil,
+			constLabels,
 		),
 		offset: prometheus.NewDesc(
 			prometheus.BuildFQName(system, endpoint, "offset"),
 			"offset",
 			[]string{"server_id"},
-			nil,
+			constLabels,
 		),
 		total: prometheus.NewDesc(
 			prometheus.BuildFQName(system, endpoint, "total"),
 			"total",
 			[]string{"server_id"},
-			nil,
+			constLabels,
 		),
 		limit: prometheus.NewDesc(
 			prometheus.BuildFQName(system, endpoint, "limit"),
 			"limit",
 			[]string{"server_id"},
-			nil,
+			constLabels,
 		),
 		pendingBytes: prometheus.NewDesc(
 			prometheus.BuildFQName(system, endpoint, "pending_bytes"),
 			"pending_bytes",
 			[]string{"server_id"},
-			nil,
+			constLabels,
 		),
 	}
 

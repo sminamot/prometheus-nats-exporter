@@ -26,12 +26,12 @@ import (
 
 // newStreamingCollector collects channelsz and serversz metrics of
 // streaming servers.
-func newStreamingCollector(system, endpoint string, servers []*CollectedServer) prometheus.Collector {
+func newStreamingCollector(system, endpoint string, l prometheus.Labels, servers []*CollectedServer) prometheus.Collector {
 	switch endpoint {
 	case "channelsz":
-		return newChannelsCollector(system, servers)
+		return newChannelsCollector(system, l, servers)
 	case "serverz":
-		return newServerzCollector(system, servers)
+		return newServerzCollector(system, l, servers)
 	}
 	return nil
 }
@@ -56,7 +56,7 @@ type serverzCollector struct {
 	info       *prometheus.Desc
 }
 
-func newServerzCollector(system string, servers []*CollectedServer) prometheus.Collector {
+func newServerzCollector(system string, constLabels prometheus.Labels, servers []*CollectedServer) prometheus.Collector {
 	nc := &serverzCollector{
 		httpClient: http.DefaultClient,
 		system:     system,
@@ -64,43 +64,43 @@ func newServerzCollector(system string, servers []*CollectedServer) prometheus.C
 			prometheus.BuildFQName(system, "server", "bytes_total"),
 			"Total of bytes",
 			[]string{"server_id"},
-			nil,
+			constLabels,
 		),
 		msgsTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "server", "msgs_total"),
 			"Total of messages",
 			[]string{"server_id"},
-			nil,
+			constLabels,
 		),
 		channels: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "server", "channels"),
 			"Total channels",
 			[]string{"server_id"},
-			nil,
+			constLabels,
 		),
 		subs: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "server", "subscriptions"),
 			"Total subscriptions",
 			[]string{"server_id"},
-			nil,
+			constLabels,
 		),
 		clients: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "server", "clients"),
 			"Total clients",
 			[]string{"server_id"},
-			nil,
+			constLabels,
 		),
 		active: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "server", "active"),
 			"Active server",
 			[]string{"server_id"},
-			nil,
+			constLabels,
 		),
 		info: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "server", "info"),
 			"Info",
 			[]string{"server_id", "cluster_id", "version", "go_version", "state", "role", "start_time"},
-			nil,
+			constLabels,
 		),
 	}
 
@@ -189,7 +189,7 @@ type channelsCollector struct {
 	subsMaxInFlight  *prometheus.Desc
 }
 
-func newChannelsCollector(system string, servers []*CollectedServer) prometheus.Collector {
+func newChannelsCollector(system string, constLabels prometheus.Labels, servers []*CollectedServer) prometheus.Collector {
 	subsVariableLabels := []string{
 		"server_id", "channel", "client_id", "inbox", "queue_name",
 		"is_durable", "is_offline", "durable_name",
@@ -201,37 +201,37 @@ func newChannelsCollector(system string, servers []*CollectedServer) prometheus.
 			prometheus.BuildFQName(system, "chan", "bytes_total"),
 			"Total of bytes",
 			[]string{"server_id", "channel"},
-			nil,
+			constLabels,
 		),
 		chanMsgsTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "chan", "msgs_total"),
 			"Total of messages",
 			[]string{"server_id", "channel"},
-			nil,
+			constLabels,
 		),
 		chanLastSeq: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "chan", "last_seq"),
 			"Last seq",
 			[]string{"server_id", "channel"},
-			nil,
+			constLabels,
 		),
 		subsLastSent: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "chan", "subs_last_sent"),
 			"Last message sent",
 			subsVariableLabels,
-			nil,
+			constLabels,
 		),
 		subsPendingCount: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "chan", "subs_pending_count"),
 			"Pending message count",
 			subsVariableLabels,
-			nil,
+			constLabels,
 		),
 		subsMaxInFlight: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "chan", "subs_max_inflight"),
 			"Max in flight message count",
 			subsVariableLabels,
-			nil,
+			constLabels,
 		),
 	}
 

@@ -292,24 +292,21 @@ func newNatsCollector(system, endpoint string, servers []*CollectedServer) prome
 	return nc
 }
 
-func getSystem(system, prefix string) string {
-	if prefix == "" {
-		return system
-	}
-	return prefix
-}
-
 // NewCollector creates a new NATS Collector from a list of monitoring URLs.
 // Each URL should be to a specific endpoint (e.g. varz, connz, subsz, or routez)
-func NewCollector(system, endpoint, prefix string, servers []*CollectedServer) prometheus.Collector {
+func NewCollector(system, endpoint, prefix string, l prometheus.Labels, servers []*CollectedServer) prometheus.Collector {
+	if prefix != "" {
+		system = prefix
+	}
+
 	if isStreamingEndpoint(system, endpoint) {
-		return newStreamingCollector(getSystem(system, prefix), endpoint, servers)
+		return newStreamingCollector(system, endpoint, l, servers)
 	}
 	if isConnzEndpoint(system, endpoint) {
-		return newConnzCollector(getSystem(system, prefix), endpoint, servers)
+		return newConnzCollector(system, endpoint, l, servers)
 	}
 	if isReplicatorEndpoint(system, endpoint) {
-		return newReplicatorCollector(getSystem(system, prefix), servers)
+		return newReplicatorCollector(system, l, servers)
 	}
-	return newNatsCollector(getSystem(system, prefix), endpoint, servers)
+	return newNatsCollector(system, endpoint, servers)
 }

@@ -14,6 +14,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"net/url"
@@ -25,6 +26,7 @@ import (
 
 	"github.com/nats-io/prometheus-nats-exporter/collector"
 	"github.com/nats-io/prometheus-nats-exporter/exporter"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 var version = "0.6.0"
@@ -52,6 +54,20 @@ func parseServerIDAndURL(urlArg string) (string, string, error) {
 		monURL = urlArg
 	}
 	return id, monURL, nil
+}
+
+func parseGlobalConstLabels(s string) (prometheus.Labels, error) {
+	labels := make(prometheus.Labels)
+
+	for _, kv := range strings.Split(s, ",") {
+		sps := strings.Split(kv, "=")
+		if len(sps) != 2 {
+			return nil, errors.New("failed to parse const labels: invalid key-value format")
+		}
+		labels[sps[0]] = sps[1]
+	}
+
+	return labels, nil
 }
 
 // updateOptions sets up additional options based on the provided flags.
@@ -88,6 +104,7 @@ func main() {
 	var debugAndTrace bool
 	var retryInterval int
 	var printVersion bool
+	var globalConstLabels string
 
 	opts := exporter.GetDefaultExporterOptions()
 
@@ -123,7 +140,7 @@ func main() {
 	flag.StringVar(&opts.HTTPPassword, "http_pass", "", "Set the password for HTTP scrapes. NATS bcrypt supported.")
 	flag.StringVar(&opts.Prefix, "prefix", "", "Replace the default prefix for all the metrics.")
 	flag.BoolVar(&opts.UseInternalServerID, "use_internal_server_id", false, "Enables using ServerID from /varz")
-	flag.StringVar(&opts.CustomLabels, "custom_labels", "", "Extra labels to add to all metrics, format k1=v1,k2=v2")
+	flag.StringVar(&globalConstLabels, "global_const_labels", "", "Constant labels to add to all metrics, format k1=v1,k2=v2")
 	flag.Parse()
 
 	opts.RetryInterval = time.Duration(retryInterval) * time.Second
@@ -145,6 +162,13 @@ violates Prometheus guidelines and best practices.  Each Prometheus NATS
 exporter should monitor exactly one NATS server, preferably sitting right
 beside it on the same machine.  Aggregate multiple servers only when
 necessary.`)
+	}
+
+	var err error
+	opts.GlobalConstLabels, err = parseGlobalConstLabels(globalConstLabels)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	updateOptions(debugAndTrace, useSysLog, opts)

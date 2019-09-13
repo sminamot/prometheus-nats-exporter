@@ -80,20 +80,20 @@ func isReplicatorEndpoint(system, endpoint string) bool {
 	return system == ReplicatorSystem && endpoint == "varz"
 }
 
-func newReplicatorCollector(system string, servers []*CollectedServer) prometheus.Collector {
+func newReplicatorCollector(system string, constLabels prometheus.Labels, servers []*CollectedServer) prometheus.Collector {
 	nc := &replicatorCollector{
 		httpClient: http.DefaultClient,
 		startTime: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "server", "start_time"),
 			"Start Time",
 			[]string{"server_id"},
-			nil,
+			constLabels,
 		),
 		currentTime: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "server", "current_time"),
 			"Current Time",
 			[]string{"server_id"},
-			nil,
+			constLabels,
 		),
 		requestCount: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "server", "request_count"),
@@ -105,85 +105,85 @@ func newReplicatorCollector(system string, servers []*CollectedServer) prometheu
 			prometheus.BuildFQName(system, "server", "info"),
 			"Info",
 			[]string{"server_id", "uptime"},
-			nil,
+			constLabels,
 		),
 		connected: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "connector", "connected"),
 			"Connected",
 			[]string{"server_id", "connector_id", "name"},
-			nil,
+			constLabels,
 		),
 		connects: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "connector", "connects"),
 			"Connects",
 			[]string{"server_id", "connector_id", "name"},
-			nil,
+			constLabels,
 		),
 		disconnects: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "connector", "disconnects"),
 			"Disonnects",
 			[]string{"server_id", "connector_id", "name"},
-			nil,
+			constLabels,
 		),
 		bytesIn: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "connector", "bytes_in"),
 			"Bytes In",
 			[]string{"server_id", "connector_id", "name"},
-			nil,
+			constLabels,
 		),
 		bytesOut: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "connector", "bytes_out"),
 			"Bytes Out",
 			[]string{"server_id", "connector_id", "name"},
-			nil,
+			constLabels,
 		),
 		messagesIn: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "connector", "messages_in"),
 			"Messages In",
 			[]string{"server_id", "connector_id", "name"},
-			nil,
+			constLabels,
 		),
 		messagesOut: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "connector", "messages_out"),
 			"Messages Out",
 			[]string{"server_id", "connector_id", "name"},
-			nil,
+			constLabels,
 		),
 		count: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "connector", "request_count"),
 			"Connector Request Count",
 			[]string{"server_id", "connector_id", "name"},
-			nil,
+			constLabels,
 		),
 		movingAverage: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "connector", "moving_average"),
 			"Connector Moving Average",
 			[]string{"server_id", "connector_id", "name"},
-			nil,
+			constLabels,
 		),
 		quintile50: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "connector", "quintile_50"),
 			"Connector 50th Quintile",
 			[]string{"server_id", "connector_id", "name"},
-			nil,
+			constLabels,
 		),
 		quintile75: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "connector", "quintile_75"),
 			"Connector 75th Quintile",
 			[]string{"server_id", "connector_id", "name"},
-			nil,
+			constLabels,
 		),
 		quintile90: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "connector", "quintile_90"),
 			"Connector 90th Quintile",
 			[]string{"server_id", "connector_id", "name"},
-			nil,
+			constLabels,
 		),
 		quintile95: prometheus.NewDesc(
 			prometheus.BuildFQName(system, "connector", "quintile_95"),
 			"Connector 95th Quintile",
 			[]string{"server_id", "connector_id", "name"},
-			nil,
+			constLabels,
 		),
 	}
 
