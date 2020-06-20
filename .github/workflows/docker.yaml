@@ -1,0 +1,36 @@
+name: Publish Docker image by tag
+on:
+  push:
+    path:
+      - '.github/workflows/**'
+jobs:
+  docker:
+    name: Docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v3
+        with:
+          buildx-version: latest
+          qemu-version: latest
+
+      - name: Login DockerHub
+        run: |
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
+      - name: Set image tag
+        run: |
+          IMAGE_TAG=$(<.github/workflows/VERSION)
+          echo ::set-env name=IMAGE_TAG::${IMAGE_TAG}
+
+      - name: Build and Publish
+        run: |
+          docker buildx build \
+            --push \
+            --platform linux/arm/v7,linux/amd64 \
+            -t ${{ github.repository_owner }}/prometheus-nats-exporter:latest \
+            -t ${{ github.repository_owner }}/prometheus-nats-exporter:${IMAGE_TAG} \
+            --file ./docker/Dockerfile .
